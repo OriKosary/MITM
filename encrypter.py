@@ -1,30 +1,46 @@
+from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Cipher import PKCS1_OAEP
+
+
 class Encrypter:
+    def __init__(self):
+        key = RSA.generate(1024)
+        private_key = key.export_key('PEM')
+        public_key = key.publickey().exportKey('PEM')
 
-    def encrypt(string, show=True):
-            result = []
+        rsa_public_key = RSA.importKey(public_key)
+        self.rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
 
-            for char in string:
-                val = ord(char) - 18
-                result.append(val)
+        rsa_private_key = RSA.importKey(private_key)
+        self.rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
 
-            if show is True:
-                for number in result:
-                    print(number, end='')
-                    print(" ", end='')
-            return result
+    def encrypt(self, string):
+        return self.rsa_public_key.encrypt(string)
 
-    def decrypt(sequence, show=True):
-        result = ""
-        for number in sequence:
-            val = int(number)
-            val = val + 18
-            val = chr(val)
-            result = result + val
-
-        if show is True:
-            print(result)
-
-        return result
+    def decrypt(self, string):
+        return self.rsa_private_key.decrypt(string)
 
 
-
+# def rsa_encrypt_decrypt():
+#     key = RSA.generate(1024)
+#     private_key = key.export_key('PEM')
+#     public_key = key.publickey().exportKey('PEM')
+#     message = input('plain text for RSA encryption and decryption:')
+#     message = str.encode(message)
+#
+#     rsa_public_key = RSA.importKey(public_key)
+#     rsa_public_key = PKCS1_OAEP.new(rsa_public_key)
+#     encrypted_text = rsa_public_key.encrypt(message)
+#     # encrypted_text = b64encode(encrypted_text)
+#
+#     print('your encrypted_text is : {}'.format(encrypted_text))
+#
+#     rsa_private_key = RSA.importKey(private_key)
+#     rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
+#     decrypted_text = rsa_private_key.decrypt(encrypted_text)
+#
+#     print('your decrypted_text is : {}'.format(decrypted_text))
+#
+#
+# rsa_encrypt_decrypt()
