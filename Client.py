@@ -5,7 +5,6 @@ from socket import socket
 import time
 import select
 import msvcrt
-import sys
 
 
 class Client(GUI):
@@ -32,7 +31,7 @@ class Client(GUI):
     def main(self, host='127.0.0.1', port=8200):
 
         keys = []  # list of tuples key + name of sender
-        input2 = ""
+        messages_to_send = []
 
         while self.wait:
             time.sleep(0.01)
@@ -42,16 +41,32 @@ class Client(GUI):
 
         # if name not in keys then send the key aswell
         try:
+            print("F")
             client_socket.connect((host, port))
-            while 'connected':
+            print("s")
+            while True:
                 rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
-                for current_socket in rlist:
-                    data = current_socket.recv(1024)
-                    data = data.decode()
-                    if data != "":
-                        print(data)
-                    input2 = input("msg : ")
-                    current_socket.send(input2.encode())
+
+                msg = ''
+                if msvcrt.kbhit():
+                    while True:
+                        hit = msvcrt.getch()
+                        msg = msg + hit
+                        if hit == '\r':
+                            print(msg)
+                            messages_to_send.append(msg)
+                            break
+
+                for msg in messages_to_send:
+                    if client_socket in wlist:
+                        client_socket.send(msg)
+                        messages_to_send.remove(msg)
+
+                if client_socket in rlist:
+                    data = client_socket.recv(1024)
+                    print(data)
+
+
 
         finally:
             client_socket.close()
