@@ -44,10 +44,7 @@ class Client(GUI):
             client_socket.connect((host, port))
             print("connected")
             while True:
-                rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
-
-                msg = ''
-                if msvcrt.kbhit():
+                while msvcrt.kbhit():
                     msg = ''
                     char = msvcrt.getche()
                     while char != b'\r' or not msg:
@@ -58,14 +55,16 @@ class Client(GUI):
                     # print('\r' in msg)
                     messages_to_send.append(msg)
 
-                for msg in messages_to_send:
-                    if client_socket in wlist:
-                        client_socket.send(msg.encode())
-                        messages_to_send.remove(msg)
+                while not msvcrt.kbhit():
+                    rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
+                    for msg in messages_to_send:
+                        if client_socket in wlist:
+                            client_socket.send(msg.encode())
+                            messages_to_send.remove(msg)
 
-                if client_socket in rlist:
-                    data = client_socket.recv(1024)
-                    print(data)
+                        if client_socket in rlist:
+                            data = client_socket.recv(1024)
+                            print(data)
 
         finally:
             client_socket.close()
