@@ -1,5 +1,5 @@
-from MITM.Graphics import *
-from MITM.encrypter import *
+from Graphics import *
+from encrypter import *
 import threading
 from socket import socket
 import time
