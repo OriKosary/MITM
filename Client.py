@@ -41,32 +41,31 @@ class Client(GUI):
 
         # if name not in keys then send the key aswell
         try:
-            print("F")
             client_socket.connect((host, port))
-            print("s")
+            print("connected")
             while True:
                 rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
 
                 msg = ''
                 if msvcrt.kbhit():
-                    while True:
-                        hit = msvcrt.getch()
-                        msg = msg + hit
-                        if hit == '\r':
-                            print(msg)
-                            messages_to_send.append(msg)
-                            break
+                    msg = ''
+                    char = msvcrt.getche()
+                    while char != b'\r' or not msg:
+                        msg += char.decode()
+                        char = msvcrt.getche()
+                    # append to messages and shi
+                    print('\n')
+                    # print('\r' in msg)
+                    messages_to_send.append(msg)
 
                 for msg in messages_to_send:
                     if client_socket in wlist:
-                        client_socket.send(msg)
+                        client_socket.send(msg.encode())
                         messages_to_send.remove(msg)
 
                 if client_socket in rlist:
                     data = client_socket.recv(1024)
                     print(data)
-
-
 
         finally:
             client_socket.close()
