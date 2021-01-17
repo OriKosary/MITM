@@ -46,13 +46,11 @@ class Client(GUI):
             while True:
                 while msvcrt.kbhit():
                     msg = ''
-                    char = msvcrt.getche()
-                    while char != b'\r' or not msg:
-                        msg += char.decode()
-                        char = msvcrt.getche()
-                    # append to messages and shi
+                    char = msvcrt.getche().decode()
+                    while char != '\r':
+                        msg += char
+                        char = msvcrt.getche().decode()
                     print('\n')
-                    # print('\r' in msg)
                     messages_to_send.append(msg)
 
                 while not msvcrt.kbhit():
@@ -62,9 +60,9 @@ class Client(GUI):
                             client_socket.send(msg.encode())
                             messages_to_send.remove(msg)
 
-                        if client_socket in rlist:
-                            data = client_socket.recv(1024)
-                            print(data)
+                    if client_socket in rlist:
+                        data = client_socket.recv(1024)
+                        print(data)
 
         finally:
             client_socket.close()
