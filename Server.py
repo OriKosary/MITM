@@ -44,8 +44,8 @@ def main():
         for current_socket in rlist:
             if current_socket is server_socket:
                 (new_socket, address) = server_socket.accept()
-                print("noice")
-                new_socket.send("hoe".encode())
+                print('Client connected IP:', address)
+                # new_socket.send("Server says hi".encode())
                 open_client_sockets.append(new_socket)
             else:
                 data = current_socket.recv(1024)
