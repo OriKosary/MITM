@@ -33,6 +33,8 @@ class Client(GUI):
         keys = []  # list of tuples key + name of sender
         messages_to_send = []
 
+        name = 'Ori'
+
         while self.wait:
             time.sleep(0.01)
         host = self.input_text
@@ -57,12 +59,12 @@ class Client(GUI):
                     rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
                     for msg in messages_to_send:
                         if client_socket in wlist:
-                            client_socket.send(msg.encode())
+                            client_socket.send((name + ": " + msg).encode())
                             messages_to_send.remove(msg)
 
                     if client_socket in rlist:
                         data = client_socket.recv(1024)
-                        print(data)
+                        print(data.decode())
 
         finally:
             client_socket.close()

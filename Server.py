@@ -11,11 +11,8 @@ def send_waiting_messages(wlist, messages_to_send):
 
 
 def data_decode(data):
-    name_len = str(data[0])
-    name = str(data[1:int(name_len) + 1])
-    option = str(data[int(name_len) + 1])
-    msg = str(data[int(name_len) + 2:])
-    return name_len, name, option, msg
+    parts = data.decode().split(': ')
+    return parts
 
 
 def private_decode(private_msg):
@@ -49,6 +46,7 @@ def main():
                 open_client_sockets.append(new_socket)
             else:
                 data = current_socket.recv(1024)
+                data = data_decode(data)
                 if data == "":
                     open_client_sockets.remove(current_socket)
                     print("Connection with client closed.")
@@ -57,11 +55,14 @@ def main():
                             dc_message = "someone" + " has left the chat!"
                             messages_to_send.append((the_socket, dc_message))
                 else:
-                    print(data)
+                    if data[1] != '':
+                        print(data)
 
                     for the_socket in open_client_sockets:
                         if the_socket is not current_socket:
-                            messages_to_send.append((the_socket, data))  # TODO : found it?!
+                            if data[1] != '':
+                                data = (data[0] + ": " + data[1]).encode()
+                                messages_to_send.append((the_socket, data))  # TODO : found it?!
         send_waiting_messages(wlist, messages_to_send)
 
 
