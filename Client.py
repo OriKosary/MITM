@@ -33,7 +33,7 @@ class Client(GUI):
         keys = []  # list of tuples key + name of sender
         messages_to_send = []
 
-        name = 'Ori'
+        name = input("Enter name : ")
 
         while self.wait:
             time.sleep(0.01)
