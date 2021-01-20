@@ -1,5 +1,4 @@
 from Graphics import *
-from encrypter import *
 import threading
 from socket import socket
 import time
@@ -9,7 +8,6 @@ import msvcrt
 
 class Client(GUI):
     def __init__(self, root=None):
-        self.e = Encrypter()
         super().__init__(root=root)
         t = threading.Thread(target=self.main)
         t.start()
@@ -33,7 +31,7 @@ class Client(GUI):
         keys = []  # list of tuples key + name of sender
         messages_to_send = []
 
-        name = input("Enter name : ")
+        name = 'ori'  # input("Enter name : ")
 
         while self.wait:
             time.sleep(0.01)
@@ -47,6 +45,7 @@ class Client(GUI):
             print("connected")
             while True:
                 while msvcrt.kbhit():
+                    print('You: ', end="")
                     msg = ''
                     char = msvcrt.getche().decode()
                     while char != '\r':
@@ -74,4 +73,3 @@ if __name__ == '__main__':
     root = Tk()
     c = Client(root=root)
     root.mainloop()
-
