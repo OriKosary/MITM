@@ -17,15 +17,18 @@
 #     soup = BeautifulSoup(data)
 #     return soup
 
-import pyshark
+# import pyshark
+#
+# capture = pyshark.LiveCapture(interface='eth0')
+# # capture.sniff(timeout=50)
+#
+# for packet in capture.sniff_continuously(packet_count=5):
+#     print('Just arrived:', packet)
+#
 
-capture = pyshark.LiveCapture(interface='eth0')
-# capture.sniff(timeout=50)
+import scapy.all as scapy
 
-for packet in capture.sniff_continuously(packet_count=5):
-    print('Just arrived:', packet)
+pkt = scapy.sniff(count=2)
 
-
-
-
+print(pkt)
 
