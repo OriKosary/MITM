@@ -1,4 +1,4 @@
-from ProjectMITM.Spoofer import Spoofer
+from Spoofer import Spoofer
 
 
 class Attacker:
