@@ -11,11 +11,11 @@ class Spoofer:
     # spoofIP: is gatewayIP
     # op=2: represents the ARP packet is a response packet
 
-    def __init__(self, destinationMac, sourceMAC, gatewayIP, targetIP):
-        self.destinationMac = destinationMac
-        self.sourceMAC = sourceMAC
-        self.gatewayIP = gatewayIP
-        self.targetIP = targetIP
+    def __init__(self, destination_mac, source_mac, gateway_ip, target_ip):
+        self.destinationMac = destination_mac
+        self.sourceMAC = source_mac
+        self.gatewayIP = gateway_ip
+        self.targetIP = target_ip
         self.thread_running = True
 
     # destinationMac = '14-10-9F-E1-65-61' MAYBE DONT NEED DESTINATION MAC
