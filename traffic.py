@@ -27,8 +27,10 @@
 #
 
 import scapy.all as scapy
+import time
 
-pkt = scapy.sniff(count=2)
-
-print(pkt)
+while 'sniffing':
+    pkt = scapy.sniff(filter=None, count=1)
+    print(pkt[0])
+    time.sleep(0.5)
 

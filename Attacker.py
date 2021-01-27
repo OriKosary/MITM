@@ -23,6 +23,9 @@ class Attacker:
         self.s.restore(self.targetIP, self.gatewayIP)
         self.s.restore(self.gatewayIP, self.targetIP)
 
+    def harvest_packets(self):
+        pass
+
     def main(self):
         pass
 
