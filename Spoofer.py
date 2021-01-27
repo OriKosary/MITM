@@ -20,7 +20,7 @@ class Spoofer:
 
     # destinationMac = '14-10-9F-E1-65-61' MAYBE DONT NEED DESTINATION MAC
     # sourceMAC = '0C-9D-92-82-9F-26'
-
+    @staticmethod
     def get_mac(self, ip):
         ans, unans = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff")/scapy.ARP(pdst=ip), timeout=2, inter=0.1)
         for snd, rcv in ans:
