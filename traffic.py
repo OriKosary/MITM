@@ -29,8 +29,12 @@
 import scapy.all as scapy
 import time
 
-while 'sniffing':
-    pkt = scapy.sniff(filter=None, count=1)
-    print(pkt[0])
-    time.sleep(0.5)
+# while 'sniffing':
+#     pkt = scapy.sniff(filter=None, count=1)
+#     print(pkt[0])
+#     time.sleep(0.5)
 
+targetIP = "1.1.12.1"
+filter_param = "Host" + " " + targetIP
+print(type(filter_param))
+print(filter_param)
