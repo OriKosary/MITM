@@ -4,6 +4,10 @@ from socket import socket
 import time
 import select
 import msvcrt
+import encrypter
+from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Cipher import PKCS1_OAEP
 
 
 class Client(GUI):
@@ -11,6 +15,9 @@ class Client(GUI):
         super().__init__(root=root)
         t = threading.Thread(target=self.main)
         t.start()
+        e = encrypter.Encrypter()
+        self.private_key = e.private_key
+        self.public_key = e.public_key
         # self.main()
 
     def open_windo(self):
@@ -26,12 +33,23 @@ class Client(GUI):
             buf += data
         return buf
 
+    @staticmethod
+    def check_recorded(name, keys):
+        names = []
+        for key in keys: # type -> tuple
+            names.append(key(1))  # the name
+
+        if name in names:
+            return True
+
+        return False
+
     def main(self, host='127.0.0.1', port=8200):
 
         keys = []  # list of tuples key + name of sender
         messages_to_send = []
 
-        name = 'ori'  # input("Enter name : ")
+        name = 'ori'  # input("Enter name : ") TODO: will read from file after login
 
         while self.wait:
             time.sleep(0.01)
@@ -56,14 +74,22 @@ class Client(GUI):
 
                 while not msvcrt.kbhit():
                     rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
-                    for msg in messages_to_send:
+                    for msg in messages_to_send:  # TODO: I need to add name to send so ill know that key to use
                         if client_socket in wlist:
                             client_socket.send((name + ": " + msg).encode())
-                            messages_to_send.remove(msg)
+                    #         data = data.decode()
+                    # parts = data.split(": ")
+                    # if self.check_recorded(parts[1], keys): # if name is recorded
+                    #     for pair in keys:
+                    #         if pair[1] == parts[1]: # the pub_key
+                    #         messages_to_send.remove(msg)
 
                     if client_socket in rlist:
                         data = client_socket.recv(1024)
-                        print(data.decode())
+                        rsa_private_key = RSA.importKey(self.private_key)
+                        rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
+                        data = rsa_private_key.decrypt(data)
+                        print(data)
 
         finally:
             client_socket.close()
