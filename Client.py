@@ -74,18 +74,27 @@ class Client(GUI):
 
                 while not msvcrt.kbhit():
                     rlist, wlist, xlist = select.select([client_socket], [client_socket], [])
+                    rsa_public_key = RSA.importKey(self.public_key)
                     for msg in messages_to_send:  # TODO: I need to add name to send so ill know that key to use
                         if client_socket in wlist:
-                            client_socket.send((name + ": " + msg).encode())
-                    #         data = data.decode()
-                    # parts = data.split(": ")
-                    # if self.check_recorded(parts[1], keys): # if name is recorded
-                    #     for pair in keys:
-                    #         if pair[1] == parts[1]: # the pub_key
-                    #         messages_to_send.remove(msg)
+                            parts = msg.split("->")  # syntax = msg -> user
+                            data = ''
+                            if self.check_recorded(parts[1]):  # The Key is already in
+                                for pair in keys:
+                                    if pair[1] == parts[1]:  # the pub_key
+                                        temp_key = pair[1]
+                                        pub_key = RSA.importKey(temp_key)
+                                        pub_key = PKCS1_OAEP.new(pub_key)
+                                        data = name + ": " + parts[0]
+                                        data = pub_key.encrypt(data.encode())
+                            else:  # The Key is not in
+                                pass
+                                # TODO: this needs to be mirrored in the recv part then i can insert into the key list
+                                # like check name in recive in case key not there special msg
+                            client_socket.send(data)
 
                     if client_socket in rlist:
-                        data = client_socket.recv(1024)
+                        data = client_socket.recv(1024)  # need to search here as well for name
                         rsa_private_key = RSA.importKey(self.private_key)
                         rsa_private_key = PKCS1_OAEP.new(rsa_private_key)
                         data = rsa_private_key.decrypt(data)

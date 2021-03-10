@@ -26,15 +26,28 @@
 #     print('Just arrived:', packet)
 #
 
-import scapy.all as scapy
-import time
-
+# from scapy import *
+#
+# while 1:
+#     sniff(prn=chgSend)
+#
+# import scapy.all as scapy
+# import time
+#
+# dst_ip = ''
 # while 'sniffing':
 #     pkt = scapy.sniff(filter=None, count=1)
-#     print(pkt[0])
-#     time.sleep(0.5)
+#     print(pkt[0][1].show())
+#
+#     pkt[0][1].dst = dst_ip
+#     print(pkt[0][1].show())
+#
+#     break
 
-targetIP = "1.1.12.1"
-filter_param = "Host" + " " + targetIP
-print(type(filter_param))
-print(filter_param)
+# scapy.IP()
+
+# targetIP = "1.1.12.1"
+# filter_param = "Host" + " " + targetIP
+# print(type(filter_param))
+# print(filter_param)
+

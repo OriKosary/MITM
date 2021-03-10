@@ -67,6 +67,7 @@ class Sys(object):
         passwordreg = password + regex
         f.write(unamereg.encode())
         f.write(passwordreg.encode())
+        f.close()
         self.root.destroy()
 
 
